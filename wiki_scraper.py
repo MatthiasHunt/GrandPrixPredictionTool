@@ -42,8 +42,13 @@ for i in range(1,nrows):
     cells[2] = cells[2].text.replace('*','')
     cells[2] = EditOut(cells[2],'(',')').rstrip()
     # Date range changed to just the end date of the event
-    date_text = cells[3].find('span')
-    cells[3] = str(date_text)[44:54]
+    if cells[3].find('span'):
+        date_text = cells[3].find('span')
+        cells[3] = str(date_text)[44:54]
+    else:
+        date_text = cells[3].text
+        date_text = date_text.replace(u'\u2013','-')
+        cells[3] = date_text[date_text.index('-')+1:]
     # Winner reduced to just names
     winners = cells[4].find_all('span',{'class':'sorttext'})
     if winners:
