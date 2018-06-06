@@ -1,16 +1,38 @@
-#This adds the feature "Days since set release" by using data from a separate Wikipedia Page
+# This formats our scraped CSV and Calculates new data featues
+# Features may require a small amount of web scraping from outside sources
 
 from bs4 import BeautifulSoup
 import requests
 import datetime
 import pandas as pd
-import numpy as np
 
-#GrandPrix class will be used to process CSV data
 
 #Global Variable that is a collection of datetime.date objects
 _release_dates = None
 
+def main():
+    #Read each GP From the CSV file and create GrandPrix object
+    gp_data = pd.read_csv("gp_data.csv")
+    gp_data['Date'] = pd.to_datetime(gp_data.Date)
+    # Initalize new feature columns
+    year = []
+    month = []
+    format_age = []
+    region = []
+    for i in range(gp_data.shape[0]):
+        event = GrandPrix(gp_data.iloc[i,0],gp_data.iloc[i,1],gp_data.iloc[i,2],gp_data.iloc[i,3],gp_data.iloc[i,4],gp_data.iloc[i,5])
+        year.append(event.gp_date.year)
+        month.append(event.gp_date.strftime('%B'))
+        format_age.append(event.days_since_release())
+        region.append(event.get_region())
+    gp_data['Month'] = pd.Series(month)
+    gp_data['Year'] = pd.Series(year)
+    gp_data['Days Since Set Release'] = pd.Series(format_age)
+    gp_data['Region'] = pd.Series(region)
+    gp_data = gp_data.drop(['Season','Winner','Date'],axis=1)
+    gp_data = gp_data[['Year','Month','Region','Format','Days Since Set Release','Location','Attendance']]
+    gp_data.to_csv('enhanced_data.csv')
+    
 class GrandPrix:
     
     def __init__(self,season,location,gp_format,gp_date,winner,attendance):
@@ -45,10 +67,8 @@ class GrandPrix:
                     #Dates in this table take on two possible formats. Day set to 1 when no day available
                     if len(set_release.split()) == 2:
                         set_date = datetime.datetime.strptime(set_release,"%B %Y")
-                        print(set_date)
                     else:
                         set_date = datetime.datetime.strptime(set_release,"%B %d, %Y")
-                        print(set_date)
                     _release_dates.append(set_date.date())
                 except (IndexError, ValueError):
                     continue
@@ -65,10 +85,8 @@ class GrandPrix:
                     #Dates in this table take on two possible formats. Day set to 1 when no day available
                     if len(set_release.split()) == 2:
                         set_date = datetime.datetime.strptime(set_release,"%B %Y")
-                        print(set_date)
                     else:
                         set_date = datetime.datetime.strptime(set_release,"%B %d, %Y")
-                        print(set_date)
                     _release_dates.append(set_date.date())
                 except (IndexError, ValueError):
                     continue
@@ -77,7 +95,7 @@ class GrandPrix:
         days_passed = min([(self.gp_date - set_release).days for set_release in _release_dates if (self.gp_date - set_release).days >= 0])
         return days_passed
     
-    def getRegion(self):
+    def get_region(self):
         #List of cities manually coded by region
         cities_by_region = {'Western US/CA': ['Anaheim','Las Vegas','Los Angeles','Oakland','Portland','Sacramento','San Diego','San Francisco','San Jose','Santa Clara','Seattle','Vancouver'],
                             'Northeast US/CA': ['Atlantic City','Baltimore','Boston','Boston-Worcester','Hartford','Massachusetts','Montreal','New Jersey','New York City','Ottawa','Philadelphia','Providence','Quebec City','Richmond','Washington, D.C.'],
@@ -94,12 +112,7 @@ class GrandPrix:
                 return region
         return "Other"
     
-    
-#Read each GP From the CSV file and create GrandPrix object
-gp_data = pd.read_csv("gp_data.csv")
-gp_data['Date'] = pd.to_datetime(gp_data.Date)
-for i in range(gp_data.shape[0]):
-    event = GrandPrix(gp_data.iloc[i,0],gp_data.iloc[i,1],gp_data.iloc[i,2],gp_data.iloc[i,3],gp_data.iloc[i,4],gp_data.iloc[i,5])
-#    print(event.days_since_release())
-#    print(event.getRegion())
+if __name__ == '__main__':
+    main()    
+
 
