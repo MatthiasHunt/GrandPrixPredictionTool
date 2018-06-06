@@ -22,12 +22,11 @@ def main():
     y_delta = y_pred-y_test
       
     # Visualizing Our Model's accuracy
-    
+    plt.figure(1)
     plt.scatter(y_test,y_delta, color = 'red')
     plt.title('Baseline Accuracy (Linear Regression)')
     plt.xlabel('Actual Event Attendance')
     plt.ylabel('Error in Linear Prediction')
-    plt.show()
     
     # Determining Which Variables Carry Significance
     format_weights = {'Block Constructed':0.}
@@ -47,13 +46,15 @@ def main():
         sorted_y.append([key for key,value in format_weights.items() if value == sorted_X[i]][0])
     
     # Create Bar Graphs
+    plt.figure(2)
     index = np.arange(len(format_weights))
     plt.barh(index,list(sorted_X))
     plt.ylabel('New Grand Prix Format')
     plt.xlabel('Expected Change in Attendance')
     plt.title('Format Attendance Compared to Standard (Linear Approximation)')
     plt.yticks(index,sorted_y,fontsize = 8, rotation = 30)
-    plt.show()       
+    
+    plt.show()
 
 def backwards_elim(X,y):
     #Backwards Elimination model Loop as needed. Not used in final implementations
