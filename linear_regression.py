@@ -52,8 +52,7 @@ def main():
     plt.ylabel('New Grand Prix Format')
     plt.xlabel('Expected Change in Attendance')
     plt.title('Format Attendance Compared to Standard (Linear Approximation)')
-    plt.yticks(index,sorted_y,fontsize = 8, rotation = 30)
-    
+    plt.yticks(index,sorted_y,fontsize = 8, rotation = 30)  
     plt.show()
 
 def backwards_elim(X,y):
